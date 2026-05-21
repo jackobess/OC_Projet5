@@ -1,0 +1,12 @@
+# Dépendances projet OC_Projet5
+fastapi
+uvicorn
+joblib
+scikit-learn
+xgboost
+pandas
+numpy
+pytest
+pytest-cov
+psycopg2-binary
+sqlalchemy
