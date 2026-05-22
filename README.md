@@ -23,3 +23,11 @@ uvicorn app.main:app --reload
 - `feature/xxx` — nouvelle fonctionnalité
 - `fix/xxx` — correction de bug  
 - `test/xxx` — ajout de tests
+
+## Standards de code et CI/CD
+
+- Branches nommées `feature/xxx`, `fix/xxx`, `test/xxx`
+- Commits au format `type: description` (ex: `feat:`, `fix:`, `docs:`, `ci:`)
+- Tout code mergé dans `main` passe par une Pull Request
+- Les tests sont automatiquement lancés via GitHub Actions à chaque push
+- Couverture de tests mesurée avec pytest-cov
