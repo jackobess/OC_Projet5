@@ -25,7 +25,7 @@ jobs:
       - name: Run tests
         run: pytest tests/ --cov=app --cov-report=xml
 
-deploy:
+  deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
