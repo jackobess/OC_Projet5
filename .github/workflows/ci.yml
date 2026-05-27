@@ -24,4 +24,18 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ --cov=app --cov-report=xml
-        
+
+deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "GitHub Actions"
+          git remote add hf https://jackobess:$HF_TOKEN@huggingface.co/spaces/jackobess/OC_Projet5
+          git push hf main --force
