@@ -1,3 +1,12 @@
+---
+title: OC Projet 5
+emoji: 🤖
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # OC_Projet5 - Déploiement d'un modèle de Machine Learning
 
 ## Description
