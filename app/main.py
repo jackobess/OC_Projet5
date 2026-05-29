@@ -1,49 +1,64 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel, Field, field_validator
+from sqlalchemy.orm import Session
 import joblib
-import numpy as np
 import pandas as pd
 from pathlib import Path
-from app.encoder import FeatureEncoder  # noqa - nécessaire pour charger le joblib
 
-# Chargement du modèle
+from app.encoder import FeatureEncoder          # noqa - nécessaire pour charger le joblib
+from app.database import engine, Base, get_db
+from app.models_db import PredictionInput, PredictionOutput
+
+# ── Chargement du modèle ──────────────────────────────────────────────────────
 MODEL_PATH = Path("models/pipeline_p4.joblib")
 model = joblib.load(MODEL_PATH)
 
+
+# ── Création des tables au démarrage si elles n'existent pas ─────────────────
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
+# ── App FastAPI ───────────────────────────────────────────────────────────────
 app = FastAPI(
     title="OC Projet 5 - ML Model API",
     description="API de prédiction d'attrition RH (Projet 4 - OpenClassrooms)",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
-class EmployeeFeatures(BaseModel):
-    age:                                    int = Field(default=35, description="Âge de l'employé (entier positif)")
-    genre:                                  str = Field(default="M", description="'M' ou 'F'")
-    niveau_education:                       int = Field(default=3, description="Niveau d'éducation (1 à 5)")
-    statut_marital:                         str = Field(default="Marié(e)", description="'Marié(e)', 'Célibataire' ou 'Divorcé(e)'")
-    poste:                                  str = Field(default="Cadre Commercial", description="Poste occupé (ex: Consultant, Manager, ...)")
-    domaine_etude:                          str = Field(default="Infra & Cloud", description="Domaine d'étude (ex: Marketing, Autre, ...)")
-    frequence_deplacement:                  str = Field(default="Occasionnel", description="'Aucun', 'Occasionnel' ou 'Frequent'")
-    distance_domicile_travail:              int = Field(default=10, description="Distance domicile/travail en km")
-    nb_formations_suivies:                  int = Field(default=3, description="Nombre de formations suivies")
-    nombre_participation_pee:               int = Field(default=1, description="Nombre de participations au PEE")
-    augmentation_salaire_prec_pct:          int = Field(default=15, description="Augmentation salariale précédente en %")
-    heure_supplementaires:                  int = Field(default=0, description="Fait des heures supplémentaires : 0 (non) ou 1 (oui)")
-    note_evaluation_actuelle:               int = Field(default=3, description="Note d'évaluation actuelle (1 à 4))")
-    satisfaction_employee_equilibre_pro_perso: int = Field(default=3, description="Satisfaction équilibre pro/perso (1 à 4)")
-    satisfaction_employee_equipe:           int = Field(default=3, description="Satisfaction équipe (1 à 4)")
-    satisfaction_employee_nature_travail:   int = Field(default=3, description="Satisfaction nature du travail (1 à 4)")
-    niveau_hierarchique_poste:              int = Field(default=2, description="Niveau hiérarchique du poste (1 à 5)")
-    note_evaluation_precedente:             int = Field(default=3, description="Note d'évaluation précédente (1 à 4)")
-    satisfaction_employee_environnement:    int = Field(default=3, description="Satisfaction environnement de travail (1 à 4)")
-    annee_experience_totale:                int = Field(default=10, description="Années d'expérience totale")
-    nombre_experiences_precedentes:         int = Field(default=2, description="Nombre d'expériences précédentes")
-    revenu_mensuel:                         int = Field(default=5000, description="Revenu mensuel en euros")
-    annees_dans_le_poste_actuel:            int = Field(default=3, description="Années dans le poste actuel")
-    annees_dans_l_entreprise:               int = Field(default=5, description="Années dans l'entreprise")
-    annees_depuis_la_derniere_promotion:    int = Field(default=2, description="Années depuis la dernière promotion")
-    annes_sous_responsable_actuel:          int = Field(default=3, description="Années sous le responsable actuel")
 
+# ── Schéma Pydantic ───────────────────────────────────────────────────────────
+class EmployeeFeatures(BaseModel):
+    age:                                       int = Field(default=35,   description="Âge de l'employé (entier positif)")
+    genre:                                     str = Field(default="M",  description="'M' ou 'F'")
+    niveau_education:                          int = Field(default=3,    description="Niveau d'éducation (1 à 5)")
+    statut_marital:                            str = Field(default="Marié(e)", description="'Marié(e)', 'Célibataire' ou 'Divorcé(e)'")
+    poste:                                     str = Field(default="Cadre Commercial", description="Poste occupé")
+    domaine_etude:                             str = Field(default="Infra & Cloud",    description="Domaine d'étude")
+    frequence_deplacement:                     str = Field(default="Occasionnel",      description="'Aucun', 'Occasionnel' ou 'Frequent'")
+    distance_domicile_travail:                 int = Field(default=10,   description="Distance domicile/travail en km")
+    nb_formations_suivies:                     int = Field(default=3,    description="Nombre de formations suivies")
+    nombre_participation_pee:                  int = Field(default=1,    description="Nombre de participations au PEE")
+    augmentation_salaire_prec_pct:             int = Field(default=15,   description="Augmentation salariale précédente en %")
+    heure_supplementaires:                     int = Field(default=0,    description="0 (non) ou 1 (oui)")
+    note_evaluation_actuelle:                  int = Field(default=3,    description="Note d'évaluation actuelle (1 à 4)")
+    satisfaction_employee_equilibre_pro_perso: int = Field(default=3,    description="Satisfaction équilibre pro/perso (1 à 4)")
+    satisfaction_employee_equipe:              int = Field(default=3,    description="Satisfaction équipe (1 à 4)")
+    satisfaction_employee_nature_travail:      int = Field(default=3,    description="Satisfaction nature du travail (1 à 4)")
+    niveau_hierarchique_poste:                 int = Field(default=2,    description="Niveau hiérarchique du poste (1 à 5)")
+    note_evaluation_precedente:                int = Field(default=3,    description="Note d'évaluation précédente (1 à 4)")
+    satisfaction_employee_environnement:       int = Field(default=3,    description="Satisfaction environnement de travail (1 à 4)")
+    annee_experience_totale:                   int = Field(default=10,   description="Années d'expérience totale")
+    nombre_experiences_precedentes:            int = Field(default=2,    description="Nombre d'expériences précédentes")
+    revenu_mensuel:                            int = Field(default=5000, description="Revenu mensuel en euros")
+    annees_dans_le_poste_actuel:               int = Field(default=3,    description="Années dans le poste actuel")
+    annees_dans_l_entreprise:                  int = Field(default=5,    description="Années dans l'entreprise")
+    annees_depuis_la_derniere_promotion:       int = Field(default=2,    description="Années depuis la dernière promotion")
+    annes_sous_responsable_actuel:             int = Field(default=3,    description="Années sous le responsable actuel")
 
     @field_validator('genre')
     def genre_valide(cls, v):
@@ -93,8 +108,8 @@ class EmployeeFeatures(BaseModel):
         if v not in [1, 2, 3, 4, 5]:
             raise ValueError("niveau_hierarchique_poste doit être entre 1 et 5")
         return v
+
     @field_validator('poste')
-    
     def poste_valide(cls, v):
         postes = [
             'Assistant de Direction', 'Cadre Commercial', 'Consultant',
@@ -116,23 +131,57 @@ class EmployeeFeatures(BaseModel):
         return v
 
 
+# ── Endpoints ─────────────────────────────────────────────────────────────────
+
 @app.get("/")
 def root():
     return {"message": "API opérationnelle"}
+
 
 @app.get("/health")
 def health():
     return {"status": "ok", "version": "0.1.0"}
 
+
 @app.post("/predict")
-def predict(data: EmployeeFeatures):
-    df = pd.DataFrame([data.model_dump()])
-    
-    prediction = model.predict(df)[0]
-    proba = model.predict_proba(df)[0]
-    
-    return {
-        "prediction": int(prediction),
-        "label": "A quitté" if prediction == 1 else "En poste",
-        "probabilite_attrition": round(float(proba[1]), 4)
-    }
+def predict(data: EmployeeFeatures, db: Session = Depends(get_db)):
+
+    # 1. Log de l'input AVANT inférence
+    input_log = PredictionInput(**data.model_dump())
+    db.add(input_log)
+    db.commit()
+    db.refresh(input_log)   # récupère l'id auto-généré
+
+    # 2. Inférence
+    try:
+        df = pd.DataFrame([data.model_dump()])
+        prediction = int(model.predict(df)[0])
+        proba = float(model.predict_proba(df)[0][1])
+
+        # 3. Log de l'output — succès
+        output_log = PredictionOutput(
+            input_id=input_log.id,
+            prediction=prediction,
+            probabilite=round(proba, 4),
+            statut="success"
+        )
+        db.add(output_log)
+        db.commit()
+
+        return {
+            "prediction": prediction,
+            "label": "A quitté" if prediction == 1 else "En poste",
+            "probabilite_attrition": round(proba, 4)
+        }
+
+    except Exception as e:
+        # 3. Log de l'output — erreur
+        output_log = PredictionOutput(
+            input_id=input_log.id,
+            statut="error",
+            error_code=type(e).__name__,
+            error_message=str(e)[:255]
+        )
+        db.add(output_log)
+        db.commit()
+        raise
