@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
@@ -10,6 +12,9 @@ from app.encoder import FeatureEncoder          # noqa - nécessaire pour charge
 from app.database import engine, Base, get_db
 from app.models_db import PredictionInput, PredictionOutput
 from app.__version__ import __version__
+
+load_dotenv()
+API_ENV = os.getenv("API_ENV", "dont know")
 
 # ── Chargement du modèle ──────────────────────────────────────────────────────
 MODEL_PATH = Path("models/pipeline_p4.joblib")
@@ -136,12 +141,12 @@ class EmployeeFeatures(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "API opérationnelle"}
+    return {"message": "API opérationnelle v" + __version__}
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": __version__}
+    return {"status": "ok", "version": __version__, "environment": API_ENV}
 
 
 @app.post("/predict")
