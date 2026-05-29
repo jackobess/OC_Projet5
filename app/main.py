@@ -153,7 +153,7 @@ def health():
 def predict(data: EmployeeFeatures, db: Session = Depends(get_db)):
 
     # 1. Log de l'input AVANT inférence
-    input_log = PredictionInput(**data.model_dump())
+    input_log = PredictionInput(**data.model_dump(), source=API_ENV)
     db.add(input_log)
     db.commit()
     db.refresh(input_log)   # récupère l'id auto-généré

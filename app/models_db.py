@@ -14,7 +14,8 @@ class PredictionInput(Base):
     __tablename__ = "prediction_inputs"
 
     id        = Column(Integer, primary_key=True, autoincrement=True)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=datetime.now(datetime.timezone.utc))
+    source = Column(String(20), nullable=True)  # "local", "HF_Prod", etc.
 
     age                                       = Column(Integer)
     genre                                     = Column(String(1))
