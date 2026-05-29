@@ -10,3 +10,4 @@ pytest
 pytest-cov
 psycopg2-binary
 sqlalchemy
+python-dotenv
