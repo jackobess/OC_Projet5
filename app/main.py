@@ -24,7 +24,7 @@ model = joblib.load(MODEL_PATH)
 # ── Création des tables au démarrage si elles n'existent pas ─────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    if os.getenv("CI") != "true": Base.metadata.create_all(bind=engine)   # éviter de recréer les tables à chaque test CI)
     yield
 
 
@@ -100,7 +100,7 @@ class EmployeeFeatures(BaseModel):
     )
     def satisfaction_valide(cls, v):
         if v not in [1, 2, 3, 4]:
-            raise ValueError("doit être entre 1 et 4")
+            raise ValueError("note de satisfaction ou d'evaluation doit être entre 1 et 4")
         return v
 
     @field_validator('niveau_education')

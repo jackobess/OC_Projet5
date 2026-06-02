@@ -4,10 +4,10 @@ from sklearn.preprocessing import OrdinalEncoder
 
 class FeatureEncoder(BaseEstimator, TransformerMixin):
     
-    def __init__(self, encoding_map):
+    def __init__(self, encoding_map):               # Utilisé uniquement lors de l'entraînement du modèle
         self.encoding_map = encoding_map
     
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):                       # Utilisé uniquement lors de l'entraînement du modèle
         self.ohe_categories_ = {}
         for col, params in self.encoding_map.items():
             if params.split(',')[0] == 'ohe':

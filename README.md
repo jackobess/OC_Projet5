@@ -15,7 +15,7 @@ API de prédiction de consommation énergétique de bâtiments (Projet 3 - OpenC
 ## Stack technique
 - FastAPI
 - PostgreSQL / SQLAlchemy
-- Scikit-learn / XGBoost
+- Scikit-learn / LogisticRegression
 - Pytest
 - GitHub Actions (CI/CD)
 

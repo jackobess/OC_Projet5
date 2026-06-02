@@ -1,7 +1,6 @@
 """
 database.py — Connexion SQLAlchemy à PostgreSQL.
 DATABASE_URL est lue depuis le fichier .env (ou variables d'environnement).
-Exemple : postgresql://postgres:postgres@localhost:5432/oc_projet5
 """
 
 import os
