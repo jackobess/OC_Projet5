@@ -20,7 +20,6 @@ API_ENV = os.getenv("API_ENV", "dont know")
 MODEL_PATH = Path("models/pipeline_p4.joblib")
 model = joblib.load(MODEL_PATH)
 
-
 # ── Création des tables au démarrage si elles n'existent pas ─────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,7 +29,7 @@ async def lifespan(app: FastAPI):
 
 # ── App FastAPI ───────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="OC Projet 5 - ML Model API",
+    title="OC Projet 5 - ML Model API "+"(API_ENV: "+API_ENV+")",
     description="API de prédiction d'attrition RH (Projet 4 - OpenClassrooms)",
     version=__version__,
     lifespan=lifespan
