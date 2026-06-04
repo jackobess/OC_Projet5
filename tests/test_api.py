@@ -86,9 +86,9 @@ class TestPredictCasReels:
         r = client.post("/predict", json=profil_stable)
         data = r.json()
         if data["prediction"] == 1:
-            assert data["label"] == "A quitté"
+            assert data["label"] == "A risque de quitter"
         else:
-            assert data["label"] == "En poste"
+            assert data["label"] == "Devrait rester"
 
 
 class TestPredictValidation:
