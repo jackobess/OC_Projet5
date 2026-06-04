@@ -5,6 +5,7 @@ test_model.py — Tests unitaires sur les composants du modèle ML.
 import pytest
 import joblib
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
 MODEL_PATH = Path("models/pipeline_p4.joblib")
