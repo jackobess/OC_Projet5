@@ -5,38 +5,13 @@ test_model.py — Tests unitaires sur les composants du modèle ML.
 import pytest
 import joblib
 import numpy as np
-import pandas as pd
 from pathlib import Path
 
 MODEL_PATH = Path("models/pipeline_p4.joblib")
 
-
 @pytest.fixture(scope="module")
 def pipeline():
     return joblib.load(MODEL_PATH)
-
-
-@pytest.fixture(scope="module")
-def sample_input():
-    return pd.DataFrame([{
-        "age": 35, "genre": "M", "niveau_education": 3,
-        "statut_marital": "Marié(e)", "poste": "Cadre Commercial",
-        "domaine_etude": "Infra & Cloud", "frequence_deplacement": "Occasionnel",
-        "distance_domicile_travail": 10, "nb_formations_suivies": 3,
-        "nombre_participation_pee": 1, "augmentation_salaire_prec_pct": 15,
-        "heure_supplementaires": 0, "note_evaluation_actuelle": 3,
-        "satisfaction_employee_equilibre_pro_perso": 3,
-        "satisfaction_employee_equipe": 3,
-        "satisfaction_employee_nature_travail": 3,
-        "niveau_hierarchique_poste": 2, "note_evaluation_precedente": 3,
-        "satisfaction_employee_environnement": 3,
-        "annee_experience_totale": 10, "nombre_experiences_precedentes": 2,
-        "revenu_mensuel": 5000, "annees_dans_le_poste_actuel": 3,
-        "annees_dans_l_entreprise": 5,
-        "annees_depuis_la_derniere_promotion": 2,
-        "annes_sous_responsable_actuel": 3,
-    }])
-
 
 class TestPipelineChargement:
 
@@ -51,7 +26,6 @@ class TestPipelineChargement:
     def test_pipeline_a_predict_proba(self, pipeline):
         """Le pipeline expose une méthode predict_proba."""
         assert hasattr(pipeline, 'predict_proba')
-
 
 class TestPrediction:
 

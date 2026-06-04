@@ -3,6 +3,7 @@ conftest.py — Fixtures partagées entre tous les tests.
 """
 
 import pytest
+import pandas as pd
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 
@@ -71,3 +72,7 @@ def profil_stable():
         "annees_depuis_la_derniere_promotion": 1,
         "annes_sous_responsable_actuel": 7,
     }
+
+@pytest.fixture
+def sample_input(profil_stable):
+    return pd.DataFrame([profil_stable])
