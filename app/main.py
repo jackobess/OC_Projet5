@@ -23,7 +23,7 @@ model = joblib.load(MODEL_PATH)
 # ── Création des tables au démarrage si elles n'existent pas ─────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if os.getenv("CI") != "true": Base.metadata.create_all(bind=engine)   # éviter de recréer les tables à chaque test CI)
+    if os.getenv("CI") != "true": Base.metadata.create_all(bind=engine)   # éviter de checker/creer les tables à chaque test CI)
     yield
 
 

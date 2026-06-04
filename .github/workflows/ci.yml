@@ -26,7 +26,7 @@ jobs:
         env:
           PYTHONPATH: .
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: pytest tests/ --cov=app --cov-report=term
+        run: pytest tests/ -v --cov=app --cov-report=term --cov-report=xml
 
   deploy:                                                   # ************************** deploy 
     needs: test
