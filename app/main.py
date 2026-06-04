@@ -175,7 +175,7 @@ def predict(data: EmployeeFeatures, db: Session = Depends(get_db)):
 
         return {
             "prediction": prediction,
-            "label": "A quitté" if prediction == 1 else "En poste",
+            "label": "A risque de quitter" if prediction == 1 else "Devrait rester",
             "probabilite_attrition": round(proba, 4)
         }
 
