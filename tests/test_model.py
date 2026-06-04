@@ -78,14 +78,14 @@ class TestPrediction:
 
 class TestFeatureEncoder:
 
-    def test_encoder_accepte_dataframe(self, pipeline, sample_input):
+    def test_pipeline_accepte_dataframe(self, pipeline, sample_input):
         """Le pipeline accepte un DataFrame pandas en entrée."""
         try:
             pipeline.predict(sample_input)
         except Exception as e:
             pytest.fail(f"Le pipeline a rejeté le DataFrame : {e}")
 
-    def test_encoder_colonnes_manquantes_leve_erreur(self, pipeline):
+    def test_pipeline_colonnes_manquantes_leve_erreur(self, pipeline):
         """Un DataFrame incomplet lève une erreur."""
         df_incomplet = pd.DataFrame([{"age": 35, "genre": "M"}])
         with pytest.raises(Exception):
